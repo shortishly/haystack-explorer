@@ -1,0 +1,27 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<dom-module id="haystack-explorer">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <h2>Hello [[prop1]]</h2>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'haystack-explorer',
+
+      properties: {
+        prop1: {
+          type: String,
+          value: 'haystack-explorer',
+        },
+      },
+
+    });
+  </script>
+</dom-module>
