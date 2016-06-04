@@ -1,0 +1,121 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../paper-badge/paper-badge.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-card/paper-card.html">
+<link rel="import" href="../paper-icon-button-toggles/paper-icon-button-toggles.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-listbox/paper-listbox.html">
+
+<dom-module id="haystack-explorer-services">
+    <template>
+        <style include="iron-flex iron-flex-alignment"></style>
+        
+        <iron-ajax
+            id="services"
+            auto
+            url="http://[[host]]:[[port]]/api/info"
+            last-response="{{info}}">
+        </iron-ajax>
+
+        <template is="dom-repeat" items="[[_services(info)]]" as="service">
+            <paper-card
+                heading="[[service.name]]"
+                <div class="card-content layout vertical">
+                    <div class="layout horizontal">
+                        <div hidden>
+                            <iron-icon icon="group-work"></iron-icon>
+                            <paper-badge label="[[service.value.length]]">
+                        </div>
+                        <div class="flex">
+                        </div>
+                        <paper-icon-button-toggles active="{{service.reveal}}">
+                        </paper-icon-button-toggles>
+                    </div>
+                    <div hidden$="[[!service.reveal]]" class="layout vertical">
+                        <template is="dom-repeat" items="[[service.value]]" as="detail">
+                            <paper-card
+                                heading="[[detail.container.name]]">
+                                <div class="card-content">
+                                    <div class="layout horizontal">
+                                        <span class="flex">
+                                            <iron-icon icon="class"></iron-icon>
+                                            [[detail.class]]
+                                        </span>
+                                        <span class="flex">
+                                            <iron-icon icon="loyalty"></iron-icon>
+                                            [[detail.priority]]
+                                        </span>
+                                        <span class="flex">
+                                            <iron-icon icon="alarm"></iron-icon>
+                                            [[detail.ttl]]
+                                        </span>
+                                        <span class="flex">
+                                            <iron-icon icon="line-weight"></iron-icon>
+                                            [[detail.weight]]
+                                        </span>
+                                    </div>
+                                    <div class="layout horizontal">
+                                        <span>
+                                            <iron-icon icon="dns"></iron-icon>
+                                            [[detail.container.addr]]
+                                        </span>
+                                    </div>
+                                </div>
+                            </paper-card>
+                        </template>
+                    </div>
+                </div>
+            </paper-card>
+        </template>
+    </template>
+
+    <script>
+     Polymer({
+         
+         is: 'haystack-explorer-services',
+
+         properties: {
+             host: {
+                 type: String,
+                 value: 'localhost',
+             },
+             
+             port: {
+                 type: Number,
+                 value: 80,
+             },
+
+             reveal: {
+                 type: Boolean,
+                 value: false
+             },
+
+             services: {
+                 type: Array
+             },
+         },
+
+         _services: function(info) {
+             var services = info.services;
+             
+             return Object.keys(services).map(function(key, index) {
+                 return {
+                     name: key,
+                     index: index,
+                     reveal: false,
+                     value: services[key].map(function(service) {
+                         service.container = info.containers[service.id];
+                         return service;
+                     }),
+                 }
+             })
+         },
+
+     });
+    </script>
+</dom-module>
