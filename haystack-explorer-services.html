@@ -43,39 +43,42 @@
                         <paper-icon-button-toggles active="{{service.reveal}}">
                         </paper-icon-button-toggles>
                     </div>
-                    <div hidden$="[[!service.reveal]]" class="layout vertical">
-                        <template is="dom-repeat" items="[[service.value]]" as="detail">
-                            <paper-card
-                                heading="[[detail.container.name]]">
-                                <div class="card-content">
-                                    <div class="layout horizontal">
-                                        <span class="flex">
-                                            <iron-icon icon="class"></iron-icon>
-                                            [[detail.class]]
-                                        </span>
-                                        <span class="flex">
-                                            <iron-icon icon="loyalty"></iron-icon>
-                                            [[detail.priority]]
-                                        </span>
-                                        <span class="flex">
-                                            <iron-icon icon="alarm"></iron-icon>
-                                            [[detail.ttl]]
-                                        </span>
-                                        <span class="flex">
-                                            <iron-icon icon="line-weight"></iron-icon>
-                                            [[detail.weight]]
-                                        </span>
+
+                    <template is="dom-if" if="[[service.reveal]]">
+                        <div class="layout vertical">
+                            <template is="dom-repeat" items="[[service.value]]" as="detail">
+                                <paper-card
+                                    heading="[[detail.container.name]]">
+                                    <div class="card-content">
+                                        <div class="layout horizontal">
+                                            <span class="flex">
+                                                <iron-icon icon="class"></iron-icon>
+                                                [[detail.class]]
+                                            </span>
+                                            <span class="flex">
+                                                <iron-icon icon="loyalty"></iron-icon>
+                                                [[detail.priority]]
+                                            </span>
+                                            <span class="flex">
+                                                <iron-icon icon="alarm"></iron-icon>
+                                                [[detail.ttl]]
+                                            </span>
+                                            <span class="flex">
+                                                <iron-icon icon="line-weight"></iron-icon>
+                                                [[detail.weight]]
+                                            </span>
+                                        </div>
+                                        <div class="layout horizontal">
+                                            <span>
+                                                <iron-icon icon="dns"></iron-icon>
+                                                [[detail.container.addr]]
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div class="layout horizontal">
-                                        <span>
-                                            <iron-icon icon="dns"></iron-icon>
-                                            [[detail.container.addr]]
-                                        </span>
-                                    </div>
-                                </div>
-                            </paper-card>
-                        </template>
-                    </div>
+                                </paper-card>
+                            </template>
+                        </div>
+                    </template>
                 </div>
             </paper-card>
         </template>
