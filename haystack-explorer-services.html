@@ -33,6 +33,27 @@
             <paper-card
                 heading="[[service.name]]">
                 <div class="card-content layout vertical">
+
+                    <template is="dom-if" if="[[_requests(service.name, info.proxy.requests)]]">
+                        <table width="100%">
+                            <tr>
+                                <th align="left">Path</th>
+                                <th align="left">Requests</th>
+                            </tr>
+
+                            <template
+                                is="dom-repeat"
+                                as="request"
+                                items="[[_requests(service.name, info.proxy.requests)]]">
+
+                                <tr>
+                                    <td>[[request.name]]</td>
+                                    <td>[[request.value]]</td>
+                                </tr>
+                            </template>
+                        </table>
+                    </template>
+
                     <div class="layout horizontal">
                         <div hidden>
                             <iron-icon icon="group-work"></iron-icon>
@@ -75,6 +96,7 @@
                                             </span>
                                         </div>
                                     </div>
+
                                 </paper-card>
                             </template>
                         </div>
@@ -110,6 +132,55 @@
              },
          },
 
+         _requests: function(name, all) {
+             var that = this;
+
+             return this._toArray(
+                 Object
+                     .keys(all)
+                     .filter(
+                         function(key) {
+                             return key.startsWith(name);
+                         })
+                     .reduce(
+                         function(requests, request) {
+                             var location = that._location(request);
+                             
+                             requests[location.pathname] = Object
+                                 .keys(all[request])
+                                 .reduce(
+                                     function(amount, endpoint) {
+                                         return amount += Object
+                                             .keys(all[request][endpoint].responses)
+                                             .reduce(
+                                                 function(subtotal, status) {
+                                                     return subtotal + all[request][endpoint].responses[status];
+                                                 },
+                                                 0);
+                                     },
+                                     requests[location.pathname] === undefined ? 0 : requests[location.pathname]);
+                             
+                             return requests;
+                         },
+                         {}));
+         },
+
+         _toArray: function(o) {
+             return Object.keys(o).map(function(key, index) {
+                 return {
+                     name: key,
+                     index: index,
+                     value: o[key],
+                 }
+             });
+         },
+
+         _location: function(href) {
+             var a = document.createElement("a");
+             a.href = href.replace(/^(tc|ud)p:/, "http:");
+             return a;
+         },
+
          _services: function(info) {
              var services = info.services;
              
@@ -123,7 +194,7 @@
                          return service;
                      }),
                  }
-             })
+             });
          },
 
      });
