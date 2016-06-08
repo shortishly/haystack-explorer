@@ -38,6 +38,7 @@
                     <template is="dom-if" if="[[service.requests]]">
                         <google-chart
                             type='pie'
+                            options='{"title": "Requests"}'
                             cols='[{"label":"Endpoint", "type":"string"}, {"label":"Requests", "type":"number"}]'
                             rows$='[[service.requests]]'>
                         </google-chart>
