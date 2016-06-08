@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 
+<link rel="import" href="../google-chart/google-chart.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
@@ -34,24 +35,12 @@
                 heading="[[service.name]]">
                 <div class="card-content layout vertical">
 
-                    <template is="dom-if" if="[[_requests(service.name, info.proxy.requests)]]">
-                        <table width="100%">
-                            <tr>
-                                <th align="left">Path</th>
-                                <th align="left">Requests</th>
-                            </tr>
-
-                            <template
-                                is="dom-repeat"
-                                as="request"
-                                items="[[_requests(service.name, info.proxy.requests)]]">
-
-                                <tr>
-                                    <td>[[request.name]]</td>
-                                    <td>[[request.value]]</td>
-                                </tr>
-                            </template>
-                        </table>
+                    <template is="dom-if" if="[[service.requests]]">
+                        <google-chart
+                            type='pie'
+                            cols='[{"label":"Endpoint", "type":"string"}, {"label":"Requests", "type":"number"}]'
+                            rows$='[[service.requests]]'>
+                        </google-chart>
                     </template>
 
                     <div class="layout horizontal">
@@ -133,55 +122,22 @@
          },
 
          _requests: function(name, all) {
-             var that = this;
-
-             return this._toArray(
-                 Object
-                     .keys(all)
-                     .filter(
-                         function(key) {
-                             return key.startsWith(name);
-                         })
-                     .reduce(
-                         function(requests, request) {
-                             var location = that._location(request);
-                             
-                             requests[location.pathname] = Object
-                                 .keys(all[request])
-                                 .reduce(
-                                     function(amount, endpoint) {
-                                         return amount += Object
-                                             .keys(all[request][endpoint].responses)
-                                             .reduce(
-                                                 function(subtotal, status) {
-                                                     return subtotal + all[request][endpoint].responses[status];
-                                                 },
-                                                 0);
-                                     },
-                                     requests[location.pathname] === undefined ? 0 : requests[location.pathname]);
-                             
-                             return requests;
-                         },
-                         {}));
-         },
-
-         _toArray: function(o) {
-             return Object.keys(o).map(function(key, index) {
-                 return {
-                     name: key,
-                     index: index,
-                     value: o[key],
-                 }
-             });
-         },
-
-         _location: function(href) {
-             var a = document.createElement("a");
-             a.href = href.replace(/^(tc|ud)p:/, "http:");
-             return a;
+             if(all[name] === undefined) {
+                 return undefined;
+             }
+             
+             return Object
+                 .keys(all[name])
+                 .reduce(
+                     function(endpoints, endpoint) {
+                         endpoints.push([endpoint, all[name][endpoint]]);
+                         return endpoints;
+                     },
+                     []);
          },
 
          _services: function(info) {
+             var that = this;
              var services = info.services;
              
              return Object.keys(services).map(function(key, index) {
@@ -193,7 +149,8 @@
                          service.container = info.containers[service.id];
                          return service;
                      }),
-                 }
+                     requests: that._requests(key, info.proxy.requests),
+                 };
              });
          },
 
