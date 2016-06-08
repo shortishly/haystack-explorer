@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 
+<link rel="import" href="../google-chart/google-chart.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
@@ -33,6 +34,15 @@
             <paper-card
                 heading="[[service.name]]">
                 <div class="card-content layout vertical">
+
+                    <template is="dom-if" if="[[service.requests]]">
+                        <google-chart
+                            type='pie'
+                            cols='[{"label":"Endpoint", "type":"string"}, {"label":"Requests", "type":"number"}]'
+                            rows$='[[service.requests]]'>
+                        </google-chart>
+                    </template>
+
                     <div class="layout horizontal">
                         <div hidden>
                             <iron-icon icon="group-work"></iron-icon>
@@ -75,6 +85,7 @@
                                             </span>
                                         </div>
                                     </div>
+
                                 </paper-card>
                             </template>
                         </div>
@@ -110,7 +121,23 @@
              },
          },
 
+         _requests: function(name, all) {
+             if(all[name] === undefined) {
+                 return undefined;
+             }
+             
+             return Object
+                 .keys(all[name])
+                 .reduce(
+                     function(endpoints, endpoint) {
+                         endpoints.push([endpoint, all[name][endpoint]]);
+                         return endpoints;
+                     },
+                     []);
+         },
+
          _services: function(info) {
+             var that = this;
              var services = info.services;
              
              return Object.keys(services).map(function(key, index) {
@@ -122,8 +149,9 @@
                          service.container = info.containers[service.id];
                          return service;
                      }),
-                 }
-             })
+                     requests: that._requests(key, info.proxy.requests),
+                 };
+             });
          },
 
      });
